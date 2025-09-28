@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useUserStore } from "../../../Auth/Store/userStore.ts";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { UiButton } from "../../../DesignSystem/Component/UiButton";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
@@ -26,14 +30,13 @@ const Title = styled.h1`
     margin: 0;
 `;
 
-
 const Form = styled.form`
     display: flex;
     flex-direction: column;
     gap: 25px;
     height: 100%;
     padding: 30px;
-    flex:1;
+    flex: 1;
 `;
 
 const InputGroup = styled.div`
@@ -43,9 +46,9 @@ const InputGroup = styled.div`
 `;
 
 const InputWrapper = styled.div`
-    position: relative;width: 100%;
+    position: relative;
+    width: 100%;
     max-width: 400px;
-
 `;
 
 const Input = styled.input`
@@ -76,7 +79,8 @@ const Label = styled.label`
     background: #efefef;
     padding: 0 10px;
     font-weight: bold;
-    &::before{
+
+    &::before {
         height: 28px;
         width: 2px;
         background: #000;
@@ -86,6 +90,7 @@ const Label = styled.label`
         position: absolute;
     }
 `;
+
 const ValuesContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -101,30 +106,6 @@ const ValueInputGroup = styled.div`
     width: 100%;
 `;
 
-
-const AddValueButton = styled.button`
-    background: transparent;
-    color: #000;
-    padding: 15px 20px;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 70px;
-    height: 70px;
-    border:1px solid #000;
-    align-self: flex-end;
-    &:hover {
-        background: gray;
-        border:1px solid #000;
-    }
-`;
-
-
 const ButtonGroup = styled.div`
     display: flex;
     gap: 20px;
@@ -132,33 +113,6 @@ const ButtonGroup = styled.div`
     margin-top: 30px;
     height: 100%;
     align-items: end;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-    padding: 15px 30px;
-    border-radius: 90px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 200px;
-    height: 70px;
-    ${props => props.variant === 'primary' ? `
-        background: #000;
-        color: #fff;
-        
-        &:hover {
-            background: gray;
-            border:0;
-        }
-    ` : `
-        background: transparent;
-        color: #000;
-        border:1px solid #000;
-        &:hover {
-            background: gray;
-                    border:1px solid #000;
-        }
-    `}
 `;
 
 const ErrorMessage = styled.div`
@@ -170,35 +124,89 @@ const ErrorMessage = styled.div`
     margin-bottom: 20px;
 `;
 
-const SuccessMessage = styled.div`
-    background: #d4edda;
-    color: #155724;
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid #c3e6cb;
-    margin-bottom: 20px;
+const FieldError = styled.span`
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
 `;
 
-interface FormData {
-    name: string;
-    values: { value: string }[];
-}
+const AddIcon = styled.svg`
+    width: 20px;
+    height: 20px;
+`;
+
+const createAttributeSchema = (t: (key: string) => string) =>
+    z.object({
+        name: z
+            .string()
+            .min(1, t("Property name is required"))
+            .min(2, t("Property name must be at least 2 characters")),
+
+        values: z
+            .array(
+                z.object({
+                    value: z
+                        .string()
+                        .min(1, t("Value is required"))
+                        .min(1, t("Value cannot be empty"))
+                })
+            )
+            .min(1, t("At least one value is required"))
+            .refine(
+                (values) => {
+                    const nonEmptyValues = values.filter(item => item.value.trim().length > 0);
+                    return nonEmptyValues.length > 0;
+                },
+                {
+                    message: t("At least one non-empty value is required"),
+                    path: ["values"]
+                }
+            )
+            .refine(
+                (values) => {
+                    const valueSet = new Set();
+                    for (const item of values) {
+                        const trimmedValue = item.value.trim();
+                        if (trimmedValue && valueSet.has(trimmedValue)) {
+                            return false;
+                        }
+                        valueSet.add(trimmedValue);
+                    }
+                    return true;
+                },
+                {
+                    message: t("Duplicate values are not allowed"),
+                    path: ["values"]
+                }
+            )
+    });
+
+type FormData = z.infer<ReturnType<typeof createAttributeSchema>>;
 
 interface CreateAttributeProps {
     onSave?: (name: string, values: string[]) => Promise<void>;
 }
 
 export function CreateAttribute({ onSave }: CreateAttributeProps) {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
-    const { t } = useTranslation();
-    const { register, control, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+
+    const {
+        register,
+        control,
+        handleSubmit,
+        formState: { errors },
+        reset
+    } = useForm<FormData>({
+        resolver: zodResolver(createAttributeSchema(t)),
         defaultValues: {
             name: "",
             values: [{ value: "" }]
-        }
+        },
+        mode: "onChange"
     });
 
     const { fields, append } = useFieldArray({
@@ -212,24 +220,22 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
 
     const onSubmit = async (data: FormData) => {
         setError(null);
-        setSuccess(false);
-
-        const filteredValues = data.values
-            .map(item => item.value.trim())
-            .filter(value => value !== "");
-
-        if (filteredValues.length === 0) {
-            setError("At least one value is required.");
-            return;
-        }
 
         try {
             setLoading(true);
 
             const token = useUserStore.getState().user?.access_token;
             if (!token) {
-                throw new Error("Token not found");
+                throw new Error(t("Token not found"));
             }
+
+            const filteredValues = Array.from(
+                new Set(
+                    data.values
+                        .map(item => item.value.trim())
+                        .filter(value => value.length > 0)
+                )
+            );
 
             const response = await fetch("https://nak-interview.darkube.app/attributes", {
                 method: "POST",
@@ -248,18 +254,13 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                 throw new Error(`${t("Error receiving")} ${response.status} - ${errorText}`);
             }
 
-            setSuccess(true);
             reset();
-
             if (onSave) {
                 await onSave(data.name, filteredValues);
             }
-
-            setTimeout(() => {
-                navigate("/dashboard/attributes");
-            }, 2000);
+            navigate("/dashboard/attributes");
         } catch (err) {
-            setError(err instanceof Error ? err.message : `${t("Error receiving")}`);
+            setError(err instanceof Error ? err.message : t("Error receiving"));
         } finally {
             setLoading(false);
         }
@@ -274,9 +275,9 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
             <Header>
                 <Title>{t("Attribute")}</Title>
             </Header>
+
             <Form onSubmit={handleSubmit(onSubmit)}>
                 {error && <ErrorMessage>{error}</ErrorMessage>}
-                {success && <SuccessMessage>{t("Attribute created successfully!")}</SuccessMessage>}
 
                 <InputGroup>
                     <InputWrapper>
@@ -284,12 +285,13 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                             id="name"
                             type="text"
                             placeholder=" "
-                            {...register("name", { required: `${t("Property name is required")}` })}
+                            {...register("name")}
                             disabled={loading}
                         />
-                        <Label htmlFor="name">Name</Label>
-                        {errors.name && <span style={{ color: 'red', fontSize: '12px' }}>{errors.name.message}</span>}
+                        <Label htmlFor="name">{t("Name")}</Label>
+                        {errors.name && <FieldError>{errors.name.message}</FieldError>}
                     </InputWrapper>
+
                     <ValuesContainer>
                         {fields.map((field, index) => (
                             <ValueInputGroup key={field.id}>
@@ -298,38 +300,66 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                                         type="text"
                                         placeholder=" "
                                         disabled={loading}
-                                        {...register(`values.${index}.value` as const, {
-                                            required: `${t("Value is required")}`
-                                        })}
+                                        {...register(`values.${index}.value`)}
                                     />
-                                    <Label htmlFor={`value-${index}`}>Value</Label>
+                                    <Label htmlFor={`value-${index}`}>{t("Value")}</Label>
                                     {errors.values?.[index]?.value && (
-                                        <span style={{ color: 'red', fontSize: '12px' }}>
+                                        <FieldError>
                                             {errors.values[index]?.value?.message}
-                                        </span>
+                                        </FieldError>
                                     )}
                                 </InputWrapper>
                             </ValueInputGroup>
                         ))}
+                        {errors.values?.root && (
+                            <FieldError>{errors.values.root.message}</FieldError>
+                        )}
                     </ValuesContainer>
-                    <AddValueButton
+
+                    <UiButton
+                        variant="secondary"
+                        size="circle"
                         type="button"
                         onClick={handleAddValue}
                         disabled={loading}
                     >
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.0001 20C9.2001 20 8.57153 19.3714 8.57153 18.5714V1.42857C8.57153 0.628571 9.2001 0 10.0001 0C10.8001 0 11.4287 0.628571 11.4287 1.42857V18.5714C11.4287 19.3714 10.8001 20 10.0001 20Z" fill="black"/>
-                            <path d="M18.5714 11.4287H1.42857C0.628571 11.4287 0 10.8001 0 10.0001C0 9.2001 0.628571 8.57153 1.42857 8.57153H18.5714C19.3714 8.57153 20 9.2001 20 10.0001C20 10.8001 19.3714 11.4287 18.5714 11.4287Z" fill="black"/>
-                        </svg>
-                    </AddValueButton>
+                        <AddIcon
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10.0001 20C9.2001 20 8.57153 19.3714 8.57153 18.5714V1.42857C8.57153 0.628571 9.2001 0 10.0001 0C10.8001 0 11.4287 0.628571 11.4287 1.42857V18.5714C11.4287 19.3714 10.8001 20 10.0001 20Z"
+                                fill="black"
+                            />
+                            <path
+                                d="M18.5714 11.4287H1.42857C0.628571 11.4287 0 10.8001 0 10.0001C0 9.2001 0.628571 8.57153 1.42857 8.57153H18.5714C19.3714 8.57153 20 9.2001 20 10.0001C20 10.8001 19.3714 11.4287 18.5714 11.4287Z"
+                                fill="black"
+                            />
+                        </AddIcon>
+                    </UiButton>
                 </InputGroup>
+
                 <ButtonGroup>
-                    <Button type="button" onClick={handleCancel} disabled={loading}>
+                    <UiButton
+                        variant="secondary"
+                        size="large"
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={loading}
+                    >
                         {t("Cancel")}
-                    </Button>
-                    <Button type="submit" variant="primary" disabled={loading}>
-                        {loading ? `${t("Saving")}` : `${t("Save")}`}
-                    </Button>
+                    </UiButton>
+                    <UiButton
+                        size="large"
+                        type="submit"
+                        variant="primary"
+                        disabled={loading}
+                    >
+                        {loading ? t("Saving") : t("Save")}
+                    </UiButton>
                 </ButtonGroup>
             </Form>
         </Wrapper>

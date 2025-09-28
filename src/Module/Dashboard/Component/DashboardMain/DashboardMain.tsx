@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { useTranslation } from "react-i18next";
-import { useUserStore } from "../../../Auth/Store/userStore.ts";
-import { jwtDecode } from 'jwt-decode';
+import {useTranslation} from "react-i18next";
+import {useUserStore} from "../../../Auth/Store/userStore.ts";
+import {jwtDecode} from 'jwt-decode';
 
 const Wrapper = styled.div`
     display: flex;
@@ -9,7 +9,7 @@ const Wrapper = styled.div`
     flex: 1;
     height: fit-content;
     width: 100%;
-    background: rgba(255,255,255,0.4);
+    background: rgba(255, 255, 255, 0.4);
     align-items: start;
     border-radius: 7px;
     padding: 40px;
@@ -30,12 +30,10 @@ const Description = styled.div`
 `;
 
 export function DashboardMain() {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const user = useUserStore((state) => state.user);
-    if (!user) {
-        return null;
-    }
-    const decoded:{username:string} = jwtDecode(user.access_token) || '';
+
+    const decoded: { username: string } = user ? jwtDecode(user.access_token) : {username: 'guest'};
 
     return (
         <Wrapper>

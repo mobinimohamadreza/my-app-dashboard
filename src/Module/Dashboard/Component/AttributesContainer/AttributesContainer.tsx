@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
-import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
-import { useUserStore } from "../../../Auth/Store/userStore.ts";
-import { useNavigate } from "react-router-dom";
+import {useTranslation} from "react-i18next";
+import {useEffect, useState} from "react";
+import {useUserStore} from "../../../Auth/Store/userStore.ts";
+import {useNavigate} from "react-router-dom";
+import {UiButton} from "../../../DesignSystem/Component/UiButton";
+
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
@@ -12,7 +14,7 @@ const WrapperHeader = styled.div`
     display: flex;
     flex-direction: row;
     width: 100%;
-       justify-content: space-between;
+    justify-content: space-between;
     align-items: center;
 `;
 const Title = styled.h1`
@@ -20,26 +22,6 @@ const Title = styled.h1`
     font-weight: bold;
     margin-bottom: 30px;
     color: #333;
-`;
-
-const AddButton = styled.button`
-    background: #000;
-    color: white;
-    border: none;
-    padding: 0 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-        height: 40px;
-    gap: 10px;
-      justify-content: space-between;
-    align-items: center;
-    display:flex;
-    &:hover {
-        background: rgba(0,0,0,.6);
-    }
 `;
 
 const TableWrapper = styled.div`
@@ -57,18 +39,18 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.th`
-    background:#efefef;
+    background: #efefef;
     padding: 20px 15px;
     text-align: center;
     font-weight: 600;
     color: #333;
     border: 1px solid #fff;
     font-size: 18px;
-    
+
     &:first-of-type {
         border-left: none;
     }
-    
+
     &:last-of-type {
         border-right: none;
     }
@@ -79,13 +61,13 @@ const TableCell = styled.td`
     text-align: center;
     color: #000;
     font-size: 16px;
-    background:  rgba(0,0,0,0.02);
-    border:1px solid #fff;
-    
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid #fff;
+
     &:first-of-type {
         border-left: none;
     }
-    
+
     &:last-of-type {
         border-right: none;
     }
@@ -95,13 +77,13 @@ const TableRow = styled.tr`
     &:hover {
         background: rgba(248, 249, 250, 0.5);
     }
-    
+
     &:last-child {
         td {
             border-bottom: none;
         }
     }
-    
+
     &:first-child {
         th {
             border-top: none;
@@ -121,8 +103,6 @@ const ValueTag = styled.span`
     font-size: 14px;
     color: #333;
 `;
-
-
 
 
 const LoadingText = styled.div`
@@ -147,7 +127,7 @@ interface Attribute {
 }
 
 export function AttributesContainer() {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const navigate = useNavigate();
     const [attributes, setAttributes] = useState<Attribute[]>([]);
     const [loading, setLoading] = useState(true);
@@ -180,12 +160,7 @@ export function AttributesContainer() {
 
             const data = await response.json();
 
-            const mockAttribute: Attribute = {
-                key: `${data.length + 1}`,
-                name: ".......",
-                values: [" ......"]
-            };
-            setAttributes([...data, mockAttribute]);
+            setAttributes(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : `${t("Error")}`);
         } finally {
@@ -223,41 +198,47 @@ export function AttributesContainer() {
     return (
         <Wrapper>
             <WrapperHeader>
-            <Title>{t("Attributes")}</Title>
-                <AddButton onClick={handleAddAttribute}>
-                {t("Attributes")}
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 14C6.44 14 6 13.56 6 13V1C6 0.44 6.44 0 7 0C7.56 0 8 0.44 8 1V13C8 13.56 7.56 14 7 14Z" fill="white"/>
-<path d="M13 8.00006H1C0.44 8.00006 0 7.56006 0 7.00006C0 6.44006 0.44 6.00006 1 6.00006H13C13.56 6.00006 14 6.44006 14 7.00006C14 7.56006 13.56 8.00006 13 8.00006Z" fill="white"/>
-</svg>
-                </AddButton>
+                <Title>{t("Attributes")}</Title>
+                <UiButton variant="primary" size="medium" onClick={handleAddAttribute}>
+                    {t("Attributes")}
+                    <svg  width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M7 14C6.44 14 6 13.56 6 13V1C6 0.44 6.44 0 7 0C7.56 0 8 0.44 8 1V13C8 13.56 7.56 14 7 14Z"
+                            fill="white"/>
+                        <path
+                            d="M13 8.00006H1C0.44 8.00006 0 7.56006 0 7.00006C0 6.44006 0.44 6.00006 1 6.00006H13C13.56 6.00006 14 6.44006 14 7.00006C14 7.56006 13.56 8.00006 13 8.00006Z"
+                            fill="white"/>
+                    </svg>
+                </UiButton>
             </WrapperHeader>
             <TableWrapper>
-            <Table>
-                <thead>
+                <Table>
+                    <thead>
                     <tr>
                         <TableHeader></TableHeader>
                         <TableHeader>{t("Name")}</TableHeader>
                         <TableHeader>{t("Values")}</TableHeader>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {attributes.map((attribute, index) => (
-                        <TableRow key={attribute.key || index + 1}>
+                        <TableRow key={attribute.key}>
                             <TableCell>{index + 1}</TableCell>
                             <TableCell>{attribute.name}</TableCell>
                             <TableCell>
                                 <ValuesList>
-                                    {attribute.values.map((value, valueIndex) => (
-                                        <ValueTag key={valueIndex}>{value},</ValueTag>
+                                    {attribute.values.map((value) => (
+                                        <ValueTag key={value}>{value},</ValueTag>
                                     ))}
                                 </ValuesList>
                             </TableCell>
                         </TableRow>
                     ))}
-                </tbody>
-            </Table>
-        </TableWrapper>
+                    </tbody>
+                </Table>
+
+                {!attributes.length  && <> no data</>}
+            </TableWrapper>
         </Wrapper>
     );
 }

@@ -1,7 +1,5 @@
-
-
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import {create} from "zustand";
+import {persist} from "zustand/middleware";
 
 
 type User = {
@@ -15,16 +13,18 @@ type UserStore = {
 };
 
 
-export const useUserStore= create<UserStore>()(
+export const useUserStore = create<UserStore>()(
     persist(
         (set) => ({
-            user:null,
-            register: (user : User) => set({user}),
-            login:(user : User) => set({user}),
-            logout:() => set({user:null}),
+            user: null,
+            register: (user: User) => set({user}),
+            login: (user: User) => set({user}),
+            logout: () => {
+                set({user: null})
+            },
         }),
-    {
-    name:'user-storage',
-    }
-)
+        {
+            name: 'user-storage',
+        }
+    )
 );

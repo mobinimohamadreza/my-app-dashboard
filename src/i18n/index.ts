@@ -113,7 +113,13 @@ const enTranslations = {
   "Attribute created successfully!": "Attribute created successfully!",
   "Property name is required": "Property name is required",
   "Value is required": "Value is required",
-
+  "An unknown error occurred": "An unknown error occurred",
+  "Value": "Value",
+  "Property name must be at least 2 characters": "Property name must be at least 2 characters",
+  "Value cannot be empty": "Value cannot be empty",
+  "At least one value is required": "At least one value is required",
+  "At least one non-empty value is required": "At least one non-empty value is required",
+  "Duplicate values are not allowed": "Duplicate values are not allowed",
 };
 
 const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';

@@ -103,7 +103,6 @@ const NavItem = styled(NavLink)`
     }
 `;
 
-// NavIcon removed - using SVG icons instead
 
 type NavigationItems = {
     key: string,
@@ -120,12 +119,11 @@ export function Sidebar() {
 
     const handleLogout = () => {
         logout();
-        localStorage.removeItem("token");
         navigate('/login');
     };
 
     const navigationItems: NavigationItems[] = [
-        { key: 'dashboard', label: t('Dashboard'), path: '/dashboard/dashboard', icon: DashboardIcon },
+        { key: 'dashboard', label: t('Dashboard'), path: '/dashboard', icon: DashboardIcon },
         { key: 'attributes', label: t('Attributes'), path: '/dashboard/attributes', icon: AttributesIcon },
         { key: 'products', label: t('Products'), path: '/dashboard/products', icon: ProductsIcon },
     ];
@@ -158,6 +156,7 @@ export function Sidebar() {
                         <NavItem
                             key={item.key}
                             to={item.path}
+                            end={item.path === "/dashboard"}
                         >
                             {({ isActive }) => (
                                 <>
