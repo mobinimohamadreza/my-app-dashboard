@@ -5,12 +5,14 @@ import {persist} from "zustand/middleware";
 type ILoginResponse = {
     access_token: string;
 }
+
 type IRegisterRequest = {
     firstName: string,
     lastName: string,
     userName: string,
     password: string,
 }
+
 type IUser = {
     firstName: string,
     lastName: string,
@@ -21,13 +23,13 @@ type IUser = {
     __v: number,
 }
 
-
 type UserStore = {
     user: ILoginResponse | null;
     register: (data: IRegisterRequest) => Promise<IUser>;
     login: (user: ILoginRequest) => Promise<ILoginResponse>;
     logout: () => void;
 };
+
 type ILoginRequest = {
     userName: string; password: string
 }

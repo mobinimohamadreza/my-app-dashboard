@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { DashboardMain } from "../DashboardMain/DashboardMain.tsx";
+import { DashboardMain } from "./DashboardMain.tsx";
 
 const Wrapper = styled.div`
     display: flex;

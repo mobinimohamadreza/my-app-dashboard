@@ -52,11 +52,11 @@ export function LoginFormContainer() {
     const loginUser = useUserStore((state) => state.login);
 
     const schema = useMemo(() => z.object({
-        userName: z.string().nonempty(t("Username is required")),
+        userName: z.string().nonempty(t("login.errors.usernameRequired")),
         password: z
             .string()
-            .min(6, t("Password must be at least 6 characters"))
-            .nonempty(t("Password is required")),
+            .min(6, t("login.errors.passwordMinLength"))
+            .nonempty(t("login.errors.passwordRequired")),
     }), []);
 
     type RegisterFormValues = z.infer<typeof schema>;
@@ -74,30 +74,30 @@ export function LoginFormContainer() {
             userName: data.userName,
             password: data.password,
         }).then(() => {
-            toast.success(t("Login successful!"));
+            toast.success(t("login.success"));
             navigate("/dashboard");
         }).catch(error => {
-            toast.error(error instanceof Error ? error.message : t("An unknown error occurred"));
+            toast.error(error instanceof Error ? error.message : t("common.unknownError"));
         })
     });
 
     return (
         <Wrapper>
-            <Title>{t("Sign In")}</Title>
+            <Title>{t("login.title")}</Title>
             <Form onSubmit={onSubmit}>
-                <UiInput {...register("userName")} placeholder={t("Username")}/>
+                <UiInput {...register("userName")} placeholder={t("login.username")}/>
                 {errors.userName && <ErrorText>{errors.userName.message}</ErrorText>}
 
                 <UiInput
                     type="password"
                     {...register("password")}
-                    placeholder={t("Password")}
+                    placeholder={t("login.password")}
                 />
                 {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
 
                 <WrapperButton>
                     <UiButton type="submit" variant="primary" size="small">
-                        {t("Sign In")}
+                        {t("login.signIn")}
                     </UiButton>
                     <UiButton
                         type="button"
@@ -105,7 +105,7 @@ export function LoginFormContainer() {
                         size="small"
                         onClick={() => navigate("/signup")}
                     >
-                        {t("Sign Up")}
+                        {t("login.signUp")}
                     </UiButton>
                 </WrapperButton>
             </Form>

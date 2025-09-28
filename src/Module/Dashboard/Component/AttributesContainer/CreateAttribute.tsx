@@ -140,26 +140,24 @@ const createAttributeSchema = (t: (key: string) => string) =>
     z.object({
         name: z
             .string()
-            .min(1, t("Property name is required"))
-            .min(2, t("Property name must be at least 2 characters")),
+            .min(1, t("attributes.propertyNameRequired")),
 
         values: z
             .array(
                 z.object({
                     value: z
                         .string()
-                        .min(1, t("Value is required"))
-                        .min(1, t("Value cannot be empty"))
+                        .min(1, t("attributes.valueRequired"))
                 })
             )
-            .min(1, t("At least one value is required"))
+            .min(1, t("attributes.atLeastOneValueRequired"))
             .refine(
                 (values) => {
                     const nonEmptyValues = values.filter(item => item.value.trim().length > 0);
                     return nonEmptyValues.length > 0;
                 },
                 {
-                    message: t("At least one non-empty value is required"),
+                    message: t("attributes.atLeastOneNonEmptyValueRequired"),
                     path: ["values"]
                 }
             )
@@ -176,7 +174,7 @@ const createAttributeSchema = (t: (key: string) => string) =>
                     return true;
                 },
                 {
-                    message: t("Duplicate values are not allowed"),
+                    message: t("attributes.duplicateValuesNotAllowed"),
                     path: ["values"]
                 }
             )
@@ -226,7 +224,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
 
             const token = useUserStore.getState().user?.access_token;
             if (!token) {
-                throw new Error(t("Token not found"));
+                throw new Error(t("common.tokenNotFound"));
             }
 
             const filteredValues = Array.from(
@@ -251,7 +249,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`${t("Error receiving")} ${response.status} - ${errorText}`);
+                throw new Error(`${t("common.errorReceiving")} ${response.status} - ${errorText}`);
             }
 
             reset();
@@ -273,7 +271,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
     return (
         <Wrapper>
             <Header>
-                <Title>{t("Attribute")}</Title>
+                <Title>{t("attributes.attribute")}</Title>
             </Header>
 
             <Form onSubmit={handleSubmit(onSubmit)}>
@@ -288,7 +286,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                             {...register("name")}
                             disabled={loading}
                         />
-                        <Label htmlFor="name">{t("Name")}</Label>
+                        <Label htmlFor="name">{t("attributes.name")}</Label>
                         {errors.name && <FieldError>{errors.name.message}</FieldError>}
                     </InputWrapper>
 
@@ -350,7 +348,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                         onClick={handleCancel}
                         disabled={loading}
                     >
-                        {t("Cancel")}
+                        {t("common.cancel")}
                     </UiButton>
                     <UiButton
                         size="large"
@@ -358,7 +356,7 @@ export function CreateAttribute({ onSave }: CreateAttributeProps) {
                         variant="primary"
                         disabled={loading}
                     >
-                        {loading ? t("Saving") : t("Save")}
+                        {loading ? t("common.saving") : t("common.save")}
                     </UiButton>
                 </ButtonGroup>
             </Form>

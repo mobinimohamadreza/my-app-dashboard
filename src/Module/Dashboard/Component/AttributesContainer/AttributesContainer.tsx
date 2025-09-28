@@ -146,7 +146,7 @@ export function AttributesContainer() {
 
 
             if (!token) {
-                throw new Error(`${t("Token not found")}`);
+                throw new Error(`${t("common.tokenNotFound")}`);
             }
 
             const response = await fetch("https://nak-interview.darkube.app/attributes", {
@@ -160,14 +160,14 @@ export function AttributesContainer() {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`${t("Error receiving")} ${response.status} - ${errorText}`);
+                throw new Error(`${t("common.errorReceiving")} ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
 
             setAttributes(data);
         } catch (err) {
-            setError(err instanceof Error ? err.message : `${t("Error")}`);
+            setError(err instanceof Error ? err.message : `${t("common.error")}`);
         } finally {
             setLoading(false);
         }
@@ -185,7 +185,7 @@ export function AttributesContainer() {
     if (loading) {
         return (
             <Wrapper>
-                <Title>{t("Attributes")}</Title>
+                <Title>{t("attributes.attributes")}</Title>
                 <LoadingText>{t("Loading")}</LoadingText>
             </Wrapper>
         );
@@ -194,7 +194,7 @@ export function AttributesContainer() {
     if (error) {
         return (
             <Wrapper>
-                <Title>{t("Attributes")}</Title>
+                <Title>{t("attributes.attributes")}</Title>
                 <ErrorText>{error}</ErrorText>
             </Wrapper>
         );
@@ -203,9 +203,9 @@ export function AttributesContainer() {
     return (
         <Wrapper>
             <WrapperHeader>
-                <Title>{t("Attributes")}</Title>
+                <Title>{t("attributes.attributes")}</Title>
                 <UiButton variant="primary" size="medium" onClick={handleAddAttribute}>
-                    {t("Attributes")}
+                    {t("attributes.attributes")}
                     <svg  width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M7 14C6.44 14 6 13.56 6 13V1C6 0.44 6.44 0 7 0C7.56 0 8 0.44 8 1V13C8 13.56 7.56 14 7 14Z"
@@ -221,8 +221,8 @@ export function AttributesContainer() {
                     <thead>
                     <tr>
                         <TableHeader></TableHeader>
-                        <TableHeader>{t("Name")}</TableHeader>
-                        <TableHeader>{t("Values")}</TableHeader>
+                        <TableHeader>{t("attributes.name")}</TableHeader>
+                        <TableHeader>{t("attributes.values")}</TableHeader>
                     </tr>
                     </thead>
                     <tbody>

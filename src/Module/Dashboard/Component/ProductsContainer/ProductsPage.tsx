@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ProductsContainer } from "../ProductsContainer/ProductsContainer.tsx";
+import { ProductsContainer } from "./ProductsContainer.tsx";
 
 const Wrapper = styled.div`
     display: flex;

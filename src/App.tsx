@@ -3,10 +3,10 @@ import {RegisterFormContainer} from "./Module/Auth/Component/RegisterFormContain
 import {LoginFormContainer} from "./Module/Auth/Component/LoginFormContainer.tsx";
 import {MainLayout} from "./layouts/MainLayout.tsx";
 import {AuthLayout} from "./layouts/AuthLayout.tsx";
-import {DashboardMainPage} from "./Module/Dashboard/Component/Pages/DashboardMainPage.tsx";
-import {AttributesPage} from "./Module/Dashboard/Component/Pages/AttributesPage.tsx";
-import {CreateAttributePage} from "./Module/Dashboard/Component/Pages/CreateAttributePage.tsx";
-import {ProductsPage} from "./Module/Dashboard/Component/Pages/ProductsPage.tsx";
+import {DashboardMainPage} from "./Module/Dashboard/Component/DashboardMain/DashboardMainPage.tsx";
+import {AttributesPage} from "./Module/Dashboard/Component/AttributesContainer/AttributesPage.tsx";
+import {CreateAttributePage} from "./Module/Dashboard/Component/AttributesContainer/CreateAttributePage.tsx";
+import {ProductsPage} from "./Module/Dashboard/Component/ProductsContainer/ProductsPage.tsx";
 import {ProtectedRoute} from "./Module/Auth/Component/ProtectedRoute.tsx";
 import {NetworkStatus} from "./Module/Network/Component/NetworkStatus.tsx";
 

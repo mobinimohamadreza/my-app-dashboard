@@ -38,10 +38,10 @@ export function DashboardMain() {
     return (
         <Wrapper>
             <Title>
-                {t("Hello")}, {decoded.username} 👋🏻
+                {t("dashboard.hello")}, {decoded.username} 👋🏻
             </Title>
             <Description>
-                {t("Welcome")}! I'm very happy you are here,
+                {t("dashboard.welcome")}! I'm very happy you are here,
             </Description>
             <Description>
                 I hope you find this dashboard easy and useful to use ☺️

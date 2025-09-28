@@ -59,30 +59,26 @@ export function RegisterFormContainer() {
     const registerSchema = useMemo(() => z.object({
         firstName: z
             .string()
-            .min(1, t("Name is required"))
-            .min(2, t("Name must be at least 2 characters")),
+            .min(1, t("registration.errors.nameRequired")),
 
         lastName: z
             .string()
-            .min(1, t("Last name is required"))
-            .min(2, t("Last name must be at least 2 characters")),
+            .min(1, t("registration.errors.lastNameRequired")),
 
         userName: z
             .string()
-            .min(1, t("Username is required"))
-            .min(4, t("Username must be at least 4 characters"))
+            .min(1, t("registration.errors.userNameRequired"))
         ,
 
         password: z
             .string()
-            .min(1, t("Password is required"))
-            .min(6, t("Password must be at least 6 characters")),
+            .min(1, t("registration.errors.confirmPasswordRequired")),
 
         confirmPassword: z
             .string()
-            .min(1, t("Confirm password is required"))
+            .min(6, t("registration.errors.passwordMinLength"))
     }).refine((data) => data.password === data.confirmPassword, {
-        message: t("Passwords do not match"),
+        message: t("registration.errors.passwordsDoNotMatch"),
         path: ["confirmPassword"],
     }), [])
 
@@ -108,11 +104,11 @@ export function RegisterFormContainer() {
                 userName: data.userName,
                 password: data.password
             }).then(() => {
-                toast.success(t("Registration successful!"));
+                toast.success(t("registration.success"));
                 navigate("/dashboard");
             })
         }).catch(error => {
-            toast.error(error instanceof Error ? error.message : t("An unknown error occurred"));
+            toast.error(error instanceof Error ? error.message : t("common.unknownError"));
         })
     });
 
@@ -123,7 +119,7 @@ export function RegisterFormContainer() {
                 {/* First Name */}
                 <UiInput
                     {...register("firstName")}
-                    placeholder={t("Name")}
+                    placeholder={t("registration.name")}
                     disabled={isSubmitting}
                 />
                 {errors.firstName && <ErrorText>{errors.firstName.message}</ErrorText>}
@@ -131,7 +127,7 @@ export function RegisterFormContainer() {
                 {/* Last Name */}
                 <UiInput
                     {...register("lastName")}
-                    placeholder={t("Last Name")}
+                    placeholder={t("registration.lastName")}
                     disabled={isSubmitting}
                 />
                 {errors.lastName && <ErrorText>{errors.lastName.message}</ErrorText>}
@@ -139,7 +135,7 @@ export function RegisterFormContainer() {
                 {/* Username */}
                 <UiInput
                     {...register("userName")}
-                    placeholder={t("Username")}
+                    placeholder={t("registration.username")}
                     disabled={isSubmitting}
                 />
                 {errors.userName && <ErrorText>{errors.userName.message}</ErrorText>}
@@ -148,7 +144,7 @@ export function RegisterFormContainer() {
                 <UiInput
                     type="password"
                     {...register("password")}
-                    placeholder={t("Password")}
+                    placeholder={t("login.password")}
                     disabled={isSubmitting}
                 />
                 {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
@@ -157,7 +153,7 @@ export function RegisterFormContainer() {
                 <UiInput
                     type="password"
                     {...register("confirmPassword")}
-                    placeholder={t("Confirm Password")}
+                    placeholder={t("registration.confirmPassword")}
                     disabled={isSubmitting}
                 />
                 {errors.confirmPassword && <ErrorText>{errors.confirmPassword.message}</ErrorText>}
@@ -190,7 +186,7 @@ export function RegisterFormContainer() {
                         onClick={() => navigate("/login")}
                         disabled={isSubmitting}
                     >
-                        {t("Sign In")}
+                        {t("login.signIn")}
                     </UiButton>
                 </WrapperButton>
             </Form>

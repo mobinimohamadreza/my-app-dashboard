@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { useNetworkStore } from "../Store/networkStore";
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
 import styled from "@emotion/styled";
+import useNetworkStatus from "../Hook/useNetworkStatus.ts";
 
 const NetworkStatusWrapper = styled.div<{ isOnline: boolean }>`
     position: fixed;
@@ -25,31 +24,13 @@ const StatusText = styled.span`
 `;
 
 export function NetworkStatus() {
-    const { isOnline, setOnline, checkConnection } = useNetworkStore();
-    const { t } = useTranslation();
-
-    useEffect(() => {
-        const handleOnline = () => setOnline(true);
-        const handleOffline = () => setOnline(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        const interval = setInterval(checkConnection, 5000);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-            clearInterval(interval);
-        };
-    }, [setOnline, checkConnection]);
-
-    if (isOnline) return null;
+    const online = useNetworkStatus();
+    const {t} = useTranslation();
 
     return (
-        <NetworkStatusWrapper isOnline={isOnline}>
+        <NetworkStatusWrapper isOnline={online}>
             <StatusText>
-                {t("Internet connection lost")}
+                {t("common.internetConnectionLost")}
             </StatusText>
         </NetworkStatusWrapper>
     );

@@ -1,18 +1,19 @@
 import styled from "@emotion/styled";
-import { AttributesContainer } from "../AttributesContainer/AttributesContainer.tsx";
+import { CreateAttribute } from "./CreateAttribute.tsx";
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
     height: 100%;
-    padding: 100px 70px;
+    padding: 100px 70px 40px;
+    align-items: start;
 `;
 
-export function AttributesPage() {
+export function CreateAttributePage() {
     return (
         <Wrapper>
-            <AttributesContainer />
+            <CreateAttribute />
         </Wrapper>
     );
 }
