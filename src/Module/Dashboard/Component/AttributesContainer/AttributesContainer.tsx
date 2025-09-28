@@ -95,8 +95,13 @@ const ValuesList = styled.div`
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+`;
 
-
+const NoData = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 40px;
 `;
 
 const ValueTag = styled.span`
@@ -237,8 +242,9 @@ export function AttributesContainer() {
                     </tbody>
                 </Table>
 
-                {!attributes.length  && <> no data</>}
             </TableWrapper>
+            {!attributes.length  && <NoData>no data</NoData> }
+
         </Wrapper>
     );
 }

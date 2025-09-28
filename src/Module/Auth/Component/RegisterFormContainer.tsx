@@ -1,12 +1,14 @@
-import { useForm } from "react-hook-form";
-import { useUserStore } from "../Store/userStore.ts";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import {useForm} from "react-hook-form";
+import {useUserStore} from "../Store/userStore.ts";
+import {useTranslation} from "react-i18next";
+import {useNavigate} from "react-router-dom";
 import styled from "@emotion/styled";
-import { UiButton } from "../../DesignSystem/Component/UiButton";
-import { UiInput } from "../../DesignSystem/Component/UiInput";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {UiButton} from "../../DesignSystem/Component/UiButton";
+import {UiInput} from "../../DesignSystem/Component/UiInput";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import toast from 'react-hot-toast';
+import {useMemo} from "react";
 
 const Wrapper = styled.div`
     max-width: 700px;
@@ -49,11 +51,12 @@ const ButtonIcon = styled.svg`
 `;
 
 export function RegisterFormContainer() {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const navigate = useNavigate();
     const registerUser = useUserStore((state) => state.register);
+    const loginUser = useUserStore((state) => state.login);
 
-    const registerSchema = z.object({
+    const registerSchema = useMemo(() => z.object({
         firstName: z
             .string()
             .min(1, t("Name is required"))
@@ -68,7 +71,7 @@ export function RegisterFormContainer() {
             .string()
             .min(1, t("Username is required"))
             .min(4, t("Username must be at least 4 characters"))
-            ,
+        ,
 
         password: z
             .string()
@@ -81,52 +84,42 @@ export function RegisterFormContainer() {
     }).refine((data) => data.password === data.confirmPassword, {
         message: t("Passwords do not match"),
         path: ["confirmPassword"],
-    });
+    }), [])
 
     type RegisterFormValues = z.infer<typeof registerSchema>;
 
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }
+        formState: {errors, isSubmitting}
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         mode: "onChange"
     });
 
-    const onSubmit = async (data: RegisterFormValues) => {
-        try {
-            const response = await fetch("https://nak-interview.darkube.app/users/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    userName: data.userName,
-                    password: data.password,
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || t("Registration failed"));
-            }
-
-            const result = await response.json();
-            registerUser(result);
-
-            navigate("/login");
-        } catch (error: unknown) {
-            alert(error instanceof Error ? error.message : t("An unknown error occurred"));
-        }
-    };
+    const onSubmit = handleSubmit((data) => {
+        registerUser({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            userName: data.userName,
+            password: data.password
+        }).then(() => {
+            loginUser({
+                userName: data.userName,
+                password: data.password
+            }).then(() => {
+                toast.success(t("Registration successful!"));
+                navigate("/dashboard");
+            })
+        }).catch(error => {
+            toast.error(error instanceof Error ? error.message : t("An unknown error occurred"));
+        })
+    });
 
     return (
         <Wrapper>
             <Title>{t("Sign Up")}</Title>
-            <Form onSubmit={handleSubmit(onSubmit)}>
+            <Form onSubmit={onSubmit}>
                 {/* First Name */}
                 <UiInput
                     {...register("firstName")}

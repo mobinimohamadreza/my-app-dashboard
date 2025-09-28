@@ -120,6 +120,7 @@ const enTranslations = {
   "At least one value is required": "At least one value is required",
   "At least one non-empty value is required": "At least one non-empty value is required",
   "Duplicate values are not allowed": "Duplicate values are not allowed",
+  "Login successful!": "Login successful!",
 };
 
 const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';

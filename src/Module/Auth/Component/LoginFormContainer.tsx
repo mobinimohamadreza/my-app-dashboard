@@ -1,12 +1,14 @@
-import { useForm } from "react-hook-form";
-import { useUserStore } from "../Store/userStore.ts";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import {useForm} from "react-hook-form";
+import {useUserStore} from "../Store/userStore.ts";
+import {useTranslation} from "react-i18next";
+import {useNavigate} from "react-router-dom";
 import styled from "@emotion/styled";
-import { UiButton } from "../../DesignSystem/Component/UiButton";
-import { UiInput } from "../../DesignSystem/Component/UiInput";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {UiButton} from "../../DesignSystem/Component/UiButton";
+import {UiInput} from "../../DesignSystem/Component/UiInput";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import toast from 'react-hot-toast';
+import {useMemo} from "react";
 
 const Wrapper = styled.div`
     max-width: 700px;
@@ -43,66 +45,47 @@ const WrapperButton = styled.div`
     margin-top: 50px;
 `;
 
-type LoginFormValues = {
-    userName: string;
-    password: string;
-};
 
 export function LoginFormContainer() {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const navigate = useNavigate();
     const loginUser = useUserStore((state) => state.login);
 
-    const schema = z.object({
+    const schema = useMemo(() => z.object({
         userName: z.string().nonempty(t("Username is required")),
         password: z
             .string()
             .min(6, t("Password must be at least 6 characters"))
             .nonempty(t("Password is required")),
-    });
+    }), []);
+
+    type RegisterFormValues = z.infer<typeof schema>;
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
-    } = useForm<LoginFormValues>({
+        formState: {errors},
+    } = useForm<RegisterFormValues>({
         resolver: zodResolver(schema),
     });
 
-    const onSubmit = async (data: LoginFormValues) => {
-        try {
-            const response = await fetch(
-                "https://nak-interview.darkube.app/auth/login",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        userName: data.userName,
-                        password: data.password,
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || t("Login failed"));
-            }
-
-            const result = await response.json();
-            loginUser(result);
+    const onSubmit = handleSubmit((data) => {
+        loginUser({
+            userName: data.userName,
+            password: data.password,
+        }).then(() => {
+            toast.success(t("Login successful!"));
             navigate("/dashboard");
-        } catch (error: unknown) {
-            alert(
-                error instanceof Error ? error.message : t("An unknown error occurred")
-            );
-        }
-    };
+        }).catch(error => {
+            toast.error(error instanceof Error ? error.message : t("An unknown error occurred"));
+        })
+    });
 
     return (
         <Wrapper>
             <Title>{t("Sign In")}</Title>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-                <UiInput {...register("userName")} placeholder={t("Username")} />
+            <Form onSubmit={onSubmit}>
+                <UiInput {...register("userName")} placeholder={t("Username")}/>
                 {errors.userName && <ErrorText>{errors.userName.message}</ErrorText>}
 
                 <UiInput
@@ -111,6 +94,7 @@ export function LoginFormContainer() {
                     placeholder={t("Password")}
                 />
                 {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
+
                 <WrapperButton>
                     <UiButton type="submit" variant="primary" size="small">
                         {t("Sign In")}
